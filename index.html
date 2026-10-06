@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f7f5f5;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #474e47;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+
+        }
+        </style>
+</head>
+<body>
+   <div><h1>Student Portal</h1>
+    
+    
+    <div>
+        <form id="student-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        <button type="submit">Submit</button>
+        
+        
+        </form>
+</div>
+<script>
+document.getElementById('student-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value.trim().toLowerCase();
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch("index.xml");
+        if (!response.ok) {
+            throw new Error(`Could not load student data (${response.status}).`);
+        }
+
+        const xmlText = await response.text();
+        const xml = new DOMParser().parseFromString(xmlText, "application/xml");
+        if (xml.querySelector("parsererror")) {
+            throw new Error("The student data file contains invalid XML.");
+        }
+
+        const validStudent = Array.from(xml.querySelectorAll("student")).some(student =>
+            student.querySelector("name")?.textContent.trim().toLowerCase() === name &&
+            student.querySelector("email")?.textContent.trim().toLowerCase() === email &&
+            student.querySelector("password")?.textContent === password
+        );
+
+        if (validStudent) {
+            alert("Form submitted successfully!");
+        } else {
+            alert("Student not found or details are incorrect. Please check your name, email, and password.");
+        }
+    } catch (error) {
+        console.error("Student verification failed:", error);
+        alert("Unable to verify student details. Make sure the page is served from a local web server and try again.");
+    }
+});
+</script>
+
+
+
+
+
+
+
+
+</body>
+
+</html>
